@@ -62,8 +62,8 @@
   <label for="price">Price (₦)</label>
   <input type="text" id="price" />
 
-  <label for="image">Image URL</label>
-  <input type="text" id="image" />
+  <label for="image">Upload Image</label>
+  <input type="file" id="image" accept="image/*" />
 
   <button id="submit">Add Product</button>
   <button id="logout">Logout</button>
@@ -71,49 +71,67 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB15ge_KZQC6rQdWYaUNY-V6jG2Er3a10Q",
       authDomain: "myshop-c8e46.firebaseapp.com",
       projectId: "myshop-c8e46",
-      storageBucket: "myshop-c8e46.appspot.com",  // 🔄 corrected domain
+      storageBucket: "myshop-c8e46.appspot.com",
       messagingSenderId: "698142829098",
-      appId: "1:698142829098:web:28be13a2dd5490d8bb3153",
+      appId: "1:698142829098:web:28be13a2dd5490d8bb3153"
     };
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
+    const storage = getStorage(app);
 
-    // Redirect to login if not authenticated
+    // Ensure user is authenticated
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         window.location.href = "login.html";
       }
     });
 
-    // Add product
+    // Add Product
     document.getElementById("submit").onclick = async () => {
       const name = document.getElementById("name").value.trim();
       const price = document.getElementById("price").value.trim();
-      const image = document.getElementById("image").value.trim();
+      const fileInput = document.getElementById("image");
+      const file = fileInput.files[0];
 
-      if (!name || !price || !image) {
-        alert("❌ Please fill all fields.");
+      if (!name || !price || !file) {
+        alert("❌ Please fill all fields and select an image.");
         return;
       }
 
       try {
-        console.log("📝 Adding product:", { name, price, image });
-        await addDoc(collection(db, "products"), { name, price, image });
+        const imagePath = `product-images/${Date.now()}_${file.name}`;
+        const imageRef = storageRef(storage, imagePath);
+
+        // Upload to Firebase Storage
+        await uploadBytes(imageRef, file);
+
+        // Get public URL
+        const imageURL = await getDownloadURL(imageRef);
+
+        // Save product to Firestore
+        await addDoc(collection(db, "products"), {
+          name,
+          price,
+          image: imageURL
+        });
+
         alert("✅ Product added!");
         document.getElementById("name").value = "";
         document.getElementById("price").value = "";
-        document.getElementById("image").value = "";
+        fileInput.value = "";
+
       } catch (error) {
-        console.error("❌ Error adding product:", error);
+        console.error("❌ Upload error:", error);
         alert("Error: " + error.message);
       }
     };
