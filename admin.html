@@ -5,19 +5,52 @@
   <title>Admin Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: Arial; padding: 30px; max-width: 500px; margin: auto; background-color: #f5f5f5; }
-    h1 { text-align: center; }
-    label { display: block; margin-top: 20px; font-weight: bold; }
+    body {
+      font-family: Arial;
+      padding: 30px;
+      max-width: 500px;
+      margin: auto;
+      background-color: #f5f5f5;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
     input {
-      width: 100%; padding: 10px; margin-top: 5px;
-      border-radius: 5px; border: 1px solid #ccc;
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
     }
+
     button {
-      margin-top: 25px; padding: 12px; background-color: #1e90ff;
-      color: white; width: 100%; border: none;
-      border-radius: 6px; font-size: 1em; cursor: pointer;
+      margin-top: 25px;
+      padding: 12px;
+      background-color: #1e90ff;
+      color: white;
+      width: 100%;
+      border: none;
+      border-radius: 6px;
+      font-size: 1em;
+      cursor: pointer;
     }
-    button:hover { background-color: #0f78d1; }
+
+    button:hover {
+      background-color: #0f78d1;
+    }
+
+    #logout {
+      background: #e74c3c;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -33,8 +66,7 @@
   <input type="text" id="image" />
 
   <button id="submit">Add Product</button>
-
-  <button id="logout" style="background: #e74c3c;">Logout</button>
+  <button id="logout">Logout</button>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -45,41 +77,50 @@
       apiKey: "AIzaSyB15ge_KZQC6rQdWYaUNY-V6jG2Er3a10Q",
       authDomain: "myshop-c8e46.firebaseapp.com",
       projectId: "myshop-c8e46",
-      storageBucket: "myshop-c8e46.firebasestorage.app",
+      storageBucket: "myshop-c8e46.appspot.com",  // 🔄 corrected domain
       messagingSenderId: "698142829098",
       appId: "1:698142829098:web:28be13a2dd5490d8bb3153",
     };
 
+    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // Auth Guard: Only allow signed-in users
+    // Redirect to login if not authenticated
     onAuthStateChanged(auth, (user) => {
-      if (!user) window.location.href = "login.html";
+      if (!user) {
+        window.location.href = "login.html";
+      }
     });
 
     // Add product
     document.getElementById("submit").onclick = async () => {
-      const name = document.getElementById("name").value;
-      const price = document.getElementById("price").value;
-      const image = document.getElementById("image").value;
+      const name = document.getElementById("name").value.trim();
+      const price = document.getElementById("price").value.trim();
+      const image = document.getElementById("image").value.trim();
 
       if (!name || !price || !image) {
-        alert("Fill all fields!");
+        alert("❌ Please fill all fields.");
         return;
       }
 
-      await addDoc(collection(db, "products"), { name, price, image });
-      alert("✅ Product added!");
-      document.getElementById("name").value = "";
-      document.getElementById("price").value = "";
-      document.getElementById("image").value = "";
+      try {
+        console.log("📝 Adding product:", { name, price, image });
+        await addDoc(collection(db, "products"), { name, price, image });
+        alert("✅ Product added!");
+        document.getElementById("name").value = "";
+        document.getElementById("price").value = "";
+        document.getElementById("image").value = "";
+      } catch (error) {
+        console.error("❌ Error adding product:", error);
+        alert("Error: " + error.message);
+      }
     };
 
     // Logout
     document.getElementById("logout").onclick = () => {
-      signOut(auth).then(() => (window.location.href = "login.html"));
+      signOut(auth).then(() => window.location.href = "login.html");
     };
   </script>
 </body>
