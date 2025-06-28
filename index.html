@@ -3,186 +3,106 @@
 <head>
   <meta charset="UTF-8" />
   <title>My Shop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
+      font-family: Arial;
+      background: #f8f8f8;
       margin: 0;
-      padding: 0;
-    }
-
-    /* Responsive Navbar */
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #1e90ff;
-      padding: 10px 20px;
-      color: white;
-      flex-wrap: wrap;
-    }
-
-    .nav-logo {
-      font-weight: bold;
-      font-size: 1.2em;
-    }
-
-    .nav-links a {
-      margin: 0 10px;
-      text-decoration: none;
-      color: white;
-      font-weight: 500;
-    }
-
-    .nav-toggle {
-      display: none;
-      font-size: 1.5em;
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-    }
-
-    @media (max-width: 600px) {
-      .nav-links {
-        display: none;
-        width: 100%;
-        text-align: center;
-        flex-direction: column;
-        margin-top: 10px;
-      }
-
-      .nav-links.show {
-        display: flex;
-      }
-
-      .nav-toggle {
-        display: block;
-      }
-
-      .nav-links a {
-        margin: 10px 0;
-      }
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 40px auto;
       padding: 20px;
     }
 
-    .products-grid {
-      display: flex;
-      flex-wrap: wrap;
+    h1 {
+      text-align: center;
+    }
+
+    #product-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 20px;
-      justify-content: center;
+      margin-top: 30px;
     }
 
     .product {
-      background: #fff;
+      background: white;
       padding: 15px;
-      width: 200px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       text-align: center;
     }
 
     .product img {
       width: 100%;
-      height: auto;
-      border-radius: 8px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 10px;
     }
 
     .product h2 {
-      font-size: 1.1em;
       margin: 10px 0 5px;
+      font-size: 1.1em;
     }
 
     .product p {
-      font-size: 1em;
-      color: #333;
+      font-size: 0.95em;
+      margin: 5px 0;
     }
 
     .product button {
       margin-top: 10px;
-      padding: 10px;
+      padding: 8px 16px;
       background-color: #1e90ff;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 4px;
       cursor: pointer;
     }
 
     .product button:hover {
-      background-color: #0f78d1;
+      background-color: #0d6efd;
     }
   </style>
 </head>
 <body>
+  <h1>Welcome to My Shop</h1>
+  <div id="product-list"></div>
 
-  <!-- Responsive Navigation Bar -->
-  <nav class="navbar">
-    <div class="nav-logo">MyShop</div>
-    <div class="nav-links" id="navLinks">
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="contact.html">Contact</a>
-      <a href="faq.html">FAQ</a>
-      <a href="login.html">Admin Login</a>
-    </div>
-    <button class="nav-toggle" onclick="toggleMenu()">☰</button>
-  </nav>
-
-  <div class="container">
-    <h1>Welcome to My Shop</h1>
-    <div id="product-list" class="products-grid"></div>
-  </div>
-
-  <!-- Firebase Product Loader -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB15ge_KZQC6rQdWYaUNY-V6jG2Er3a10Q",
       authDomain: "myshop-c8e46.firebaseapp.com",
       projectId: "myshop-c8e46",
-      storageBucket: "myshop-c8e46.firebasestorage.app",
+      storageBucket: "myshop-c8e46.appspot.com",
       messagingSenderId: "698142829098",
-      appId: "1:698142829098:web:28be13a2dd5490d8bb3153",
+      appId: "1:698142829098:web:28be13a2dd5490d8bb3153"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
     const productList = document.getElementById("product-list");
-    const snapshot = await getDocs(collection(db, "products"));
 
-    if (snapshot.empty) {
-      productList.innerHTML = "<p>No products yet.</p>";
-    }
-
-    snapshot.forEach((doc) => {
-      const p = doc.data();
-      const div = document.createElement("div");
-      div.className = "product";
-      div.innerHTML = `
-        <img src="${p.image}" alt="${p.name}">
-        <h2>${p.name}</h2>
-        <p>₦${p.price}</p>
-        <button>Add to Cart</button>
-      `;
-      productList.appendChild(div);
+    // Live update from Firestore
+    onSnapshot(collection(db, "products"), (snapshot) => {
+      productList.innerHTML = ""; // Clear old items
+      snapshot.forEach((doc) => {
+        const p = doc.data();
+        const div = document.createElement("div");
+        div.className = "product";
+        div.innerHTML = `
+          <img src="${p.image}" alt="${p.name}" />
+          <h2>${p.name}</h2>
+          <p><strong>₦${p.price}</strong></p>
+          <p>${p.description || ""}</p>
+          <button>Add to Cart</button>
+        `;
+        productList.appendChild(div);
+      });
     });
   </script>
-
-  <!-- Toggle Menu Script -->
-  <script>
-    function toggleMenu() {
-      document.getElementById("navLinks").classList.toggle("show");
-    }
-  </script>
-
 </body>
 </html>

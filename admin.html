@@ -23,7 +23,7 @@
       font-weight: bold;
     }
 
-    input {
+    input, textarea {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
@@ -51,6 +51,13 @@
       background: #e74c3c;
       margin-top: 10px;
     }
+
+    #preview {
+      margin-top: 10px;
+      max-width: 100%;
+      border-radius: 6px;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -62,8 +69,12 @@
   <label for="price">Price (₦)</label>
   <input type="text" id="price" />
 
+  <label for="description">Description</label>
+  <textarea id="description" rows="3"></textarea>
+
   <label for="image">Upload Image</label>
   <input type="file" id="image" accept="image/*" />
+  <img id="preview" />
 
   <button id="submit">Add Product</button>
   <button id="logout">Logout</button>
@@ -83,62 +94,67 @@
       appId: "1:698142829098:web:28be13a2dd5490d8bb3153"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
     const storage = getStorage(app);
 
-    // Ensure user is authenticated
+    // Ensure user is logged in
     onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = "login.html";
+      if (!user) window.location.href = "login.html";
+    });
+
+    // Show image preview
+    document.getElementById("image").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const preview = document.getElementById("preview");
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
       }
     });
 
-    // Add Product
+    // Add product
     document.getElementById("submit").onclick = async () => {
       const name = document.getElementById("name").value.trim();
       const price = document.getElementById("price").value.trim();
+      const description = document.getElementById("description").value.trim();
       const fileInput = document.getElementById("image");
       const file = fileInput.files[0];
 
-      if (!name || !price || !file) {
-        alert("❌ Please fill all fields and select an image.");
+      if (!name || !price || !description || !file) {
+        alert("❌ Fill all fields and select an image.");
         return;
       }
 
       try {
         const imagePath = `product-images/${Date.now()}_${file.name}`;
         const imageRef = storageRef(storage, imagePath);
-
-        // Upload to Firebase Storage
         await uploadBytes(imageRef, file);
-
-        // Get public URL
         const imageURL = await getDownloadURL(imageRef);
 
-        // Save product to Firestore
         await addDoc(collection(db, "products"), {
           name,
           price,
-          image: imageURL
+          description,
+          image: imageURL,
+          timestamp: new Date()
         });
 
         alert("✅ Product added!");
         document.getElementById("name").value = "";
         document.getElementById("price").value = "";
+        document.getElementById("description").value = "";
         fileInput.value = "";
-
-      } catch (error) {
-        console.error("❌ Upload error:", error);
-        alert("Error: " + error.message);
+        document.getElementById("preview").style.display = "none";
+      } catch (err) {
+        console.error(err);
+        alert("❌ Failed to add product.");
       }
     };
 
-    // Logout
     document.getElementById("logout").onclick = () => {
-      signOut(auth).then(() => window.location.href = "login.html");
+      signOut(auth).then(() => (window.location.href = "login.html"));
     };
   </script>
 </body>
