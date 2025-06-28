@@ -1,69 +1,86 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Admin Panel</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body {
-      max-width: 500px;
-      margin: 40px auto;
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-
+    body { font-family: Arial; padding: 30px; max-width: 500px; margin: auto; background-color: #f5f5f5; }
     h1 { text-align: center; }
-    label { display: block; margin-top: 15px; font-weight: bold; }
-    input { width: 100%; padding: 10px; margin-top: 5px; }
+    label { display: block; margin-top: 20px; font-weight: bold; }
+    input {
+      width: 100%; padding: 10px; margin-top: 5px;
+      border-radius: 5px; border: 1px solid #ccc;
+    }
     button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 12px;
-      background-color: #1e90ff;
-      color: white;
-      border: none;
-      font-size: 1em;
-      border-radius: 6px;
-      cursor: pointer;
+      margin-top: 25px; padding: 12px; background-color: #1e90ff;
+      color: white; width: 100%; border: none;
+      border-radius: 6px; font-size: 1em; cursor: pointer;
     }
-
-    button:hover {
-      background-color: #0f78d1;
-    }
+    button:hover { background-color: #0f78d1; }
   </style>
 </head>
 <body>
-
-  <h1>Add New Product</h1>
+  <h1>Add Product</h1>
 
   <label for="name">Product Name</label>
-  <input type="text" id="name" required>
+  <input type="text" id="name" />
 
   <label for="price">Price (₦)</label>
-  <input type="text" id="price" required>
+  <input type="text" id="price" />
 
-  <label for="image">Image URL (online or in /images folder)</label>
-  <input type="text" id="image" required>
+  <label for="image">Image URL</label>
+  <input type="text" id="image" />
 
-  <button onclick="addProduct()">Add Product</button>
+  <button id="submit">Add Product</button>
 
-  <script>
-    function addProduct() {
-      const name = document.getElementById('name').value;
-      const price = document.getElementById('price').value;
-      const image = document.getElementById('image').value;
+  <button id="logout" style="background: #e74c3c;">Logout</button>
 
-      const newProduct = { name, price, image };
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-      const products = JSON.parse(localStorage.getItem('products') || '[]');
-      products.push(newProduct);
-      localStorage.setItem('products', JSON.stringify(products));
+    const firebaseConfig = {
+      apiKey: "AIzaSyB15ge_KZQC6rQdWYaUNY-V6jG2Er3a10Q",
+      authDomain: "myshop-c8e46.firebaseapp.com",
+      projectId: "myshop-c8e46",
+      storageBucket: "myshop-c8e46.firebasestorage.app",
+      messagingSenderId: "698142829098",
+      appId: "1:698142829098:web:28be13a2dd5490d8bb3153",
+    };
 
-      alert("Product added!");
-      document.getElementById('name').value = "";
-      document.getElementById('price').value = "";
-      document.getElementById('image').value = "";
-    }
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Auth Guard: Only allow signed-in users
+    onAuthStateChanged(auth, (user) => {
+      if (!user) window.location.href = "login.html";
+    });
+
+    // Add product
+    document.getElementById("submit").onclick = async () => {
+      const name = document.getElementById("name").value;
+      const price = document.getElementById("price").value;
+      const image = document.getElementById("image").value;
+
+      if (!name || !price || !image) {
+        alert("Fill all fields!");
+        return;
+      }
+
+      await addDoc(collection(db, "products"), { name, price, image });
+      alert("✅ Product added!");
+      document.getElementById("name").value = "";
+      document.getElementById("price").value = "";
+      document.getElementById("image").value = "";
+    };
+
+    // Logout
+    document.getElementById("logout").onclick = () => {
+      signOut(auth).then(() => (window.location.href = "login.html"));
+    };
   </script>
-
 </body>
 </html>

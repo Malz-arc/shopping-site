@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Arial; padding: 50px; max-width: 400px; margin: auto; background: #f9f9f9; }
+    input, button { width: 100%; padding: 10px; margin-top: 15px; border-radius: 5px; border: 1px solid #ccc; }
+    button { background: #1e90ff; color: white; border: none; cursor: pointer; }
+    button:hover { background: #0f78d1; }
+    h2 { text-align: center; }
+    #error { color: red; text-align: center; }
+  </style>
+</head>
+<body>
+  <h2>Admin Login</h2>
+  <input type="email" id="email" placeholder="Email" required />
+  <input type="password" id="password" placeholder="Password" required />
+  <button onclick="login()">Login</button>
+  <p id="error"></p>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB15ge_KZQC6rQdWYaUNY-V6jG2Er3a10Q",
+      authDomain: "myshop-c8e46.firebaseapp.com",
+      projectId: "myshop-c8e46",
+      storageBucket: "myshop-c8e46.firebasestorage.app",
+      messagingSenderId: "698142829098",
+      appId: "1:698142829098:web:28be13a2dd5490d8bb3153",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.login = function () {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          window.location.href = "admin.html";
+        })
+        .catch((err) => {
+          document.getElementById("error").innerText = "Login failed: " + err.message;
+        });
+    };
+  </script>
+</body>
+</html>

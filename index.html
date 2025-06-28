@@ -1,93 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>My Shop - Home</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <title>My Shop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      margin: 0;
-      padding: 0;
-    }
-
+    body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; }
     .nav {
-      text-align: center;
-      padding: 15px;
-      background-color: #fff;
+      text-align: center; padding: 15px; background: #fff;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
-
     .nav a {
-      margin: 0 15px;
-      text-decoration: none;
-      color: #1e90ff;
-      font-weight: bold;
+      margin: 0 15px; text-decoration: none;
+      color: #1e90ff; font-weight: bold;
     }
-
-    .container {
-      max-width: 1000px;
-      margin: 40px auto;
-      padding: 20px;
-    }
-
+    .container { max-width: 1000px; margin: 40px auto; padding: 20px; }
     .products-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
+      display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;
     }
-
     .product {
-      background-color: #fff;
-      padding: 15px;
-      width: 200px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      background: #fff; padding: 15px; width: 200px;
+      border-radius: 10px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       text-align: center;
     }
-
     .product img {
-      width: 100%;
-      height: auto;
-      border-radius: 8px;
+      width: 100%; height: auto; border-radius: 8px;
     }
-
-    .product h2 {
-      font-size: 1.1em;
-      margin: 10px 0 5px;
-    }
-
-    .product p {
-      font-size: 1em;
-      color: #333;
-    }
-
+    .product h2 { font-size: 1.1em; margin: 10px 0 5px; }
+    .product p { font-size: 1em; color: #333; }
     .product button {
-      margin-top: 10px;
-      padding: 10px;
-      background-color: #1e90ff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
+      margin-top: 10px; padding: 10px;
+      background-color: #1e90ff; color: white;
+      border: none; border-radius: 5px; cursor: pointer;
     }
-
-    .product button:hover {
-      background-color: #0f78d1;
-    }
-
-    @media (max-width: 600px) {
-      .product {
-        width: 90%;
-      }
-
-      .nav {
-        font-size: 0.95em;
-      }
-    }
+    .product button:hover { background-color: #0f78d1; }
   </style>
 </head>
 <body>
@@ -102,31 +48,44 @@
 
   <div class="container">
     <h1>Welcome to My Shop</h1>
-    <div id="product-list" class="products-grid">
-      <!-- Products will be inserted here by JavaScript -->
-    </div>
+    <div id="product-list" class="products-grid"></div>
   </div>
 
-  <script>
-    const productList = document.getElementById('product-list');
-    const products = JSON.parse(localStorage.getItem('products') || '[]');
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    if (products.length === 0) {
-      productList.innerHTML = '<p style="text-align:center;">No products added yet. Go to <a href="admin.html">admin page</a> to add some!</p>';
+    const firebaseConfig = {
+      apiKey: "AIzaSyB15ge_KZQC6rQdWYaUNY-V6jG2Er3a10Q",
+      authDomain: "myshop-c8e46.firebaseapp.com",
+      projectId: "myshop-c8e46",
+      storageBucket: "myshop-c8e46.firebasestorage.app",
+      messagingSenderId: "698142829098",
+      appId: "1:698142829098:web:28be13a2dd5490d8bb3153",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const productList = document.getElementById("product-list");
+    const snapshot = await getDocs(collection(db, "products"));
+
+    if (snapshot.empty) {
+      productList.innerHTML = "<p>No products yet.</p>";
     }
 
-    products.forEach(product => {
-      const div = document.createElement('div');
-      div.className = 'product';
+    snapshot.forEach((doc) => {
+      const p = doc.data();
+      const div = document.createElement("div");
+      div.className = "product";
       div.innerHTML = `
-        <img src="${product.image}" alt="${product.name}">
-        <h2>${product.name}</h2>
-        <p>₦${product.price}</p>
+        <img src="${p.image}" alt="${p.name}">
+        <h2>${p.name}</h2>
+        <p>₦${p.price}</p>
         <button>Add to Cart</button>
       `;
       productList.appendChild(div);
     });
   </script>
-
 </body>
 </html>
