@@ -1,19 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Shop</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <h1>My Online Store</h1>
-  <div class="product">
-    <img src="shirt.jpg" alt="Cool Shirt" width="150">
-    <h2>Cool Shirt</h2>
-    <p>₦5000</p>
-    <button onclick="addToCart('Cool Shirt', 5000)">Add to Cart</button>
+
+  <div class="products">
+    <div class="product">
+      <img src="shirt.jpg" alt="Cool Shirt">
+      <h2>Cool Shirt</h2>
+      <p>₦5000</p>
+      <button onclick="addToCart('Cool Shirt', 5000)">Add to Cart</button>
+    </div>
+
+    <div class="product">
+      <img src="shoes.jpg" alt="Cool Shoes">
+      <h2>Cool Shoes</h2>
+      <p>₦8000</p>
+      <button onclick="addToCart('Cool Shoes', 8000)">Add to Cart</button>
+    </div>
   </div>
 
-  <a href="cart.html">🛒 View Cart</a>
+  <a href="cart.html" class="cart-link">🛒 View Cart</a>
 
   <script src="js/main.js"></script>
 </body>
