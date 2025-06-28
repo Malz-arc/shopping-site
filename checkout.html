@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head><title>Checkout</title></head>
+<body>
+  <h1>Checkout</h1>
+  <button onclick="payWithPaystack()">Pay Now</button>
+
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <script>
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let total = cart.reduce((sum, item) => sum + item.price, 0) * 100; // in kobo
+
+    function payWithPaystack() {
+      var handler = PaystackPop.setup({
+        key: 'YOUR_PUBLIC_KEY',
+        email: 'buyer@example.com',
+        amount: total,
+        currency: "NGN",
+        callback: function(response){
+          alert('Payment successful! Ref: ' + response.reference);
+          localStorage.removeItem("cart");
+        },
+        onClose: function(){
+          alert('Payment window closed.');
+        }
+      });
+      handler.openIframe();
+    }
+  </script>
+</body>
+</html>
