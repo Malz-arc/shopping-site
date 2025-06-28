@@ -1,10 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>About Us</title>
+  <meta charset="UTF-8">
+  <title>About Us - My Shop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .about-container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .about-container h1 {
+      text-align: center;
+      font-size: 2em;
+      color: #333;
+    }
+
+    .about-container p {
+      line-height: 1.8;
+      font-size: 1.1em;
+      color: #444;
+      text-align: justify;
+    }
+
+    .nav {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .nav a {
+      margin: 0 10px;
+      text-decoration: none;
+      color: #1e90ff;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      .about-container {
+        padding: 10px;
+      }
+
+      .about-container h1 {
+        font-size: 1.5em;
+      }
+
+      .about-container p {
+        font-size: 1em;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>About This Shop</h1>
-  <p>We sell cool stuff online.</p>
+
+  <div class="nav">
+    <a href="index.html">Home</a>
+    <a href="cart.html">Cart</a>
+    <a href="about.html">About</a>
+  </div>
+
+  <div class="about-container">
+    <h1>About This Shop</h1>
+    <p>
+      Welcome to <strong>My Online Store</strong> — your one-stop shop for unique, stylish, and affordable items.
+      We’re passionate about bringing quality products directly to your door. Whether you're looking for fashion, gadgets, or something special, we've got you covered.
+    </p>
+    <p>
+      Our mission is simple: to make online shopping easy, secure, and enjoyable for everyone. Thank you for visiting!
+    </p>
+  </div>
+
 </body>
 </html>
